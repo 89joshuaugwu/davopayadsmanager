@@ -21,3 +21,7 @@ npm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# admin sdk
+davopayadsmanager-firebase-adminsdk.json

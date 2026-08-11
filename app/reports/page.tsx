@@ -133,25 +133,25 @@ export default function ReportsPage() {
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 no-print">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 no-print">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-davo-navy">Reports</h1>
             <p className="text-sm text-davo-muted mt-0.5">
               Filter by date and export for your bosses.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleSaveToCloudinary}
               disabled={uploading}
-              className="h-11 px-4 rounded-full border border-davo-border text-davo-navy font-medium text-sm hover:bg-white transition-colors flex items-center gap-2 disabled:opacity-60"
+              className="flex-1 sm:flex-initial h-11 px-4 rounded-full border border-davo-border text-davo-navy font-medium text-sm hover:bg-white transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {uploading ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
               Save copy
             </button>
             <button
               onClick={handlePrint}
-              className="h-11 px-5 rounded-full bg-davo-blue text-white font-semibold text-sm hover:bg-davo-blue-dark transition-colors flex items-center gap-2"
+              className="flex-1 sm:flex-initial h-11 px-5 rounded-full bg-davo-blue text-white font-semibold text-sm hover:bg-davo-blue-dark transition-colors flex items-center justify-center gap-2"
             >
               <Printer size={16} /> Print / Export PDF
             </button>

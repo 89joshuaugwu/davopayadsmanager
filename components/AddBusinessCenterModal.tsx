@@ -122,7 +122,7 @@ export default function AddBusinessCenterModal({ open, onClose, onSaved, gmailAc
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>Amount funded ($)</label>
+            <label className={labelClass}>Amount funded (₦)</label>
             <input
               type="number"
               step="0.01"

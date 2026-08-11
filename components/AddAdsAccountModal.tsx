@@ -151,7 +151,7 @@ export default function AddAdsAccountModal({ open, onClose, onSaved, businessCen
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>Amount spent ($)</label>
+            <label className={labelClass}>Amount spent (₦)</label>
             <input
               type="number"
               step="0.01"
@@ -161,7 +161,7 @@ export default function AddAdsAccountModal({ open, onClose, onSaved, businessCen
             />
           </div>
           <div>
-            <label className={labelClass}>Cost per conversion ($)</label>
+            <label className={labelClass}>Cost per conversion (₦)</label>
             <input
               type="number"
               step="0.01"
@@ -197,7 +197,7 @@ export default function AddAdsAccountModal({ open, onClose, onSaved, businessCen
 
         {needsLossTracking && (
           <div>
-            <label className={labelClass}>Funds lost / locked ($)</label>
+            <label className={labelClass}>Funds lost / locked (₦)</label>
             <input
               type="number"
               step="0.01"

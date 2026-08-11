@@ -69,7 +69,7 @@ export default function FinancialSummary({ totals }: Props) {
         >
           <AlertTriangle size={16} className="text-davo-danger flex-shrink-0" />
           <p className="text-sm text-davo-danger font-medium">
-            {totals.highCpaCount} ads account{totals.highCpaCount > 1 ? "s" : ""} above $100 CPA —
+            {totals.highCpaCount} ads account{totals.highCpaCount > 1 ? "s" : ""} above ₦100 CPA —
             action required: pause.
           </p>
         </motion.div>

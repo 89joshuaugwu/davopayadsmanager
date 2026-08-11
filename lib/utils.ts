@@ -6,12 +6,11 @@ import {
 } from "./types";
 
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "USD",
+  const formatted = new Intl.NumberFormat("en-NG", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount || 0);
+  return `₦${formatted}`;
 }
 
 export function formatDate(iso: string): string {

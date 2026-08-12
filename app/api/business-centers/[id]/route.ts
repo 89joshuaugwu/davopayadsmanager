@@ -41,13 +41,23 @@ export async function DELETE(
   try {
     await requireWhitelistedUser(req);
 
-    const adsSnap = await adminDb
-      .collection("adsAccounts")
-      .where("businessCenterId", "==", params.id)
-      .get();
+    const [adsSnap, fundingSnap] = await Promise.all([
+      adminDb.collection("adsAccounts").where("businessCenterId", "==", params.id).get(),
+      adminDb.collection("businessCenterFunding").where("businessCenterId", "==", params.id).get(),
+    ]);
 
     const batch = adminDb.batch();
-    adsSnap.docs.forEach((d) => batch.delete(d.ref));
+
+    for (const adDoc of adsSnap.docs) {
+      const logsSnap = await adminDb
+        .collection("adsDailyLogs")
+        .where("adsAccountId", "==", adDoc.id)
+        .get();
+      logsSnap.docs.forEach((d) => batch.delete(d.ref));
+      batch.delete(adDoc.ref);
+    }
+
+    fundingSnap.docs.forEach((d) => batch.delete(d.ref));
     batch.delete(adminDb.collection("businessCenters").doc(params.id));
     await batch.commit();
 

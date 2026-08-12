@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Printer, UploadCloud, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import AppShell from "@/components/AppShell";
 import DateRangeFilter from "@/components/DateRangeFilter";
 import ReportView from "@/components/ReportView";
 import { useAuth } from "@/lib/AuthContext";
@@ -129,9 +128,7 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-davo-bg">
-      <Navbar />
-
+    <AppShell>
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 no-print">
           <div>
@@ -174,8 +171,6 @@ export default function ReportsPage() {
           />
         )}
       </main>
-
-      <Footer />
-    </div>
+    </AppShell>
   );
 }

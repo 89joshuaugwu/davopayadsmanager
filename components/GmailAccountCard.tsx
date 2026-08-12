@@ -13,6 +13,9 @@ import {
   Megaphone,
   ExternalLink,
   StickyNote,
+  Wallet,
+  LineChart,
+  BarChart3,
 } from "lucide-react";
 import {
   GmailAccountPublic,
@@ -33,9 +36,13 @@ interface Props {
   onAddBusinessCenter: (gmailAccountId: string) => void;
   onEditBusinessCenter: (bc: BusinessCenter) => void;
   onDeleteBusinessCenter: (bc: BusinessCenter) => void;
+  onAddFunding: (bc: BusinessCenter) => void;
+  onViewBusinessCenterAnalysis: (bc: BusinessCenter) => void;
   onAddAdsAccount: (businessCenterId: string) => void;
   onEditAdsAccount: (ads: AdsAccount) => void;
   onDeleteAdsAccount: (ads: AdsAccount) => void;
+  onLogDailySpend: (ads: AdsAccount) => void;
+  onViewAdsAccountAnalysis: (ads: AdsAccount) => void;
 }
 
 function Badge({ status }: { status: string }) {
@@ -56,9 +63,13 @@ export default function GmailAccountCard({
   onAddBusinessCenter,
   onEditBusinessCenter,
   onDeleteBusinessCenter,
+  onAddFunding,
+  onViewBusinessCenterAnalysis,
   onAddAdsAccount,
   onEditAdsAccount,
   onDeleteAdsAccount,
+  onLogDailySpend,
+  onViewAdsAccountAnalysis,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
 
@@ -180,6 +191,22 @@ export default function GmailAccountCard({
                         </div>
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <button
+                            onClick={() => onAddFunding(bc)}
+                            className="w-8 h-8 flex items-center justify-center rounded-full text-davo-success hover:bg-davo-success-bg transition-colors"
+                            aria-label="Add funding"
+                            title="Add funding"
+                          >
+                            <Wallet size={14} />
+                          </button>
+                          <button
+                            onClick={() => onViewBusinessCenterAnalysis(bc)}
+                            className="w-8 h-8 flex items-center justify-center rounded-full text-davo-blue hover:bg-davo-blue/10 transition-colors"
+                            aria-label="View analysis"
+                            title="View analysis"
+                          >
+                            <BarChart3 size={14} />
+                          </button>
+                          <button
                             onClick={() => onEditBusinessCenter(bc)}
                             className="w-8 h-8 flex items-center justify-center rounded-full text-davo-muted hover:bg-davo-bg transition-colors"
                             aria-label="Edit business center"
@@ -235,6 +262,22 @@ export default function GmailAccountCard({
                                 )}
                               </div>
                               <div className="flex items-center gap-1 flex-shrink-0">
+                                <button
+                                  onClick={() => onLogDailySpend(ad)}
+                                  className="w-7 h-7 flex items-center justify-center rounded-full text-davo-success hover:bg-white transition-colors"
+                                  aria-label="Log daily spend"
+                                  title="Log daily spend"
+                                >
+                                  <LineChart size={12} />
+                                </button>
+                                <button
+                                  onClick={() => onViewAdsAccountAnalysis(ad)}
+                                  className="w-7 h-7 flex items-center justify-center rounded-full text-davo-blue hover:bg-white transition-colors"
+                                  aria-label="View analysis"
+                                  title="View analysis"
+                                >
+                                  <BarChart3 size={12} />
+                                </button>
                                 <button
                                   onClick={() => onEditAdsAccount(ad)}
                                   className="w-7 h-7 flex items-center justify-center rounded-full text-davo-muted hover:bg-white transition-colors"

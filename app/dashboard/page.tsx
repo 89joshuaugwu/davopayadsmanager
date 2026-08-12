@@ -4,13 +4,14 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Inbox } from "lucide-react";
 import toast from "react-hot-toast";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import AppShell from "@/components/AppShell";
 import FinancialSummary from "@/components/FinancialSummary";
 import GmailAccountCard from "@/components/GmailAccountCard";
 import AddGmailModal from "@/components/AddGmailModal";
 import AddBusinessCenterModal from "@/components/AddBusinessCenterModal";
 import AddAdsAccountModal from "@/components/AddAdsAccountModal";
+import AddFundingModal from "@/components/AddFundingModal";
+import AddDailyLogModal from "@/components/AddDailyLogModal";
 import PasswordDecryptModal from "@/components/PasswordDecryptModal";
 import ConfirmModal from "@/components/ConfirmModal";
 import EmptyState from "@/components/EmptyState";
@@ -52,6 +53,12 @@ export default function DashboardPage() {
 
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [passwordTarget, setPasswordTarget] = useState<GmailAccountPublic | null>(null);
+
+  const [fundingModalOpen, setFundingModalOpen] = useState(false);
+  const [fundingTarget, setFundingTarget] = useState<BusinessCenter | null>(null);
+
+  const [dailyLogModalOpen, setDailyLogModalOpen] = useState(false);
+  const [dailyLogTarget, setDailyLogTarget] = useState<AdsAccount | null>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
   const [deleting, setDeleting] = useState(false);
@@ -150,9 +157,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-davo-bg">
-      <Navbar />
-
+    <AppShell>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
@@ -237,6 +242,13 @@ export default function DashboardPage() {
                   setBcModalOpen(true);
                 }}
                 onDeleteBusinessCenter={(bc) => setDeleteTarget({ type: "businessCenter", item: bc })}
+                onAddFunding={(bc) => {
+                  setFundingTarget(bc);
+                  setFundingModalOpen(true);
+                }}
+                onViewBusinessCenterAnalysis={(bc) =>
+                  router.push(`/analytics/business-centers?businessCenterIds=${bc.id}`)
+                }
                 onAddAdsAccount={(bcId) => {
                   setAdsParentBcId(bcId);
                   setEditingAds(null);
@@ -248,13 +260,18 @@ export default function DashboardPage() {
                   setAdsModalOpen(true);
                 }}
                 onDeleteAdsAccount={(ads) => setDeleteTarget({ type: "adsAccount", item: ads })}
+                onLogDailySpend={(ads) => {
+                  setDailyLogTarget(ads);
+                  setDailyLogModalOpen(true);
+                }}
+                onViewAdsAccountAnalysis={(ads) =>
+                  router.push(`/analytics/ads-accounts?adsAccountIds=${ads.id}`)
+                }
               />
             ))}
           </div>
         )}
       </main>
-
-      <Footer />
 
       <AddGmailModal
         open={gmailModalOpen}
@@ -277,6 +294,25 @@ export default function DashboardPage() {
         onSaved={loadData}
         businessCenterId={adsParentBcId}
         editing={editingAds}
+      />
+
+      <AddFundingModal
+        open={fundingModalOpen}
+        onClose={() => setFundingModalOpen(false)}
+        onSaved={loadData}
+        businessCenterId={fundingTarget?.id || null}
+        businessCenterName={fundingTarget?.name || ""}
+      />
+
+      <AddDailyLogModal
+        open={dailyLogModalOpen}
+        onClose={() => setDailyLogModalOpen(false)}
+        onSaved={loadData}
+        adsAccountId={dailyLogTarget?.id || null}
+        gmailAccountId={
+          businessCenters.find((bc) => bc.id === dailyLogTarget?.businessCenterId)?.gmailAccountId || null
+        }
+        adsAccountName={dailyLogTarget?.name || ""}
       />
 
       <PasswordDecryptModal
@@ -306,6 +342,6 @@ export default function DashboardPage() {
             : "This will permanently delete this ads account. This cannot be undone."
         }
       />
-    </div>
+    </AppShell>
   );
 }

@@ -57,8 +57,9 @@ export async function DELETE(
   try {
     await requireWhitelistedUser(req);
 
-    // Cascade delete: business centers under this Gmail account, and ads
-    // accounts under each of those business centers.
+    // Cascade delete: business centers under this Gmail account, their funding
+    // history, the ads accounts under each business center, and those ads
+    // accounts' daily logs.
     const bcSnap = await adminDb
       .collection("businessCenters")
       .where("gmailAccountId", "==", params.id)
@@ -67,11 +68,21 @@ export async function DELETE(
     const batch = adminDb.batch();
 
     for (const bcDoc of bcSnap.docs) {
-      const adsSnap = await adminDb
-        .collection("adsAccounts")
-        .where("businessCenterId", "==", bcDoc.id)
-        .get();
-      adsSnap.docs.forEach((adDoc) => batch.delete(adDoc.ref));
+      const [adsSnap, fundingSnap] = await Promise.all([
+        adminDb.collection("adsAccounts").where("businessCenterId", "==", bcDoc.id).get(),
+        adminDb.collection("businessCenterFunding").where("businessCenterId", "==", bcDoc.id).get(),
+      ]);
+
+      for (const adDoc of adsSnap.docs) {
+        const logsSnap = await adminDb
+          .collection("adsDailyLogs")
+          .where("adsAccountId", "==", adDoc.id)
+          .get();
+        logsSnap.docs.forEach((d) => batch.delete(d.ref));
+        batch.delete(adDoc.ref);
+      }
+
+      fundingSnap.docs.forEach((d) => batch.delete(d.ref));
       batch.delete(bcDoc.ref);
     }
 

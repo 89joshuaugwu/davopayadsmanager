@@ -45,6 +45,27 @@ export interface AdsAccount {
   createdAt: number;
 }
 
+export interface AdsDailyLog {
+  id: string;
+  adsAccountId: string;
+  businessCenterId: string; // denormalized, for fast filtering
+  gmailAccountId: string; // denormalized, for fast filtering
+  date: string; // ISO date, one entry per account per day (upserted)
+  amountSpent: number;
+  cpa: number;
+  createdAt: number;
+}
+
+export interface BusinessCenterFunding {
+  id: string;
+  businessCenterId: string;
+  gmailAccountId: string; // denormalized, for fast filtering
+  amount: number;
+  date: string; // ISO date
+  note?: string;
+  createdAt: number;
+}
+
 export interface FinancialTotals {
   totalFunded: number;
   totalSpent: number;
@@ -56,3 +77,14 @@ export interface FinancialTotals {
 export const CPA_ALERT_THRESHOLD = 100;
 export const MAX_BUSINESS_CENTERS_PER_GMAIL = 3;
 export const MAX_ADS_ACCOUNTS_PER_BUSINESS_CENTER = 3;
+
+export const ADS_STATUS_OPTIONS: AdsAccountStatus[] = ["active", "paused", "blocked", "closed"];
+
+export interface AdsAccountFilters {
+  gmailAccountIds: string[];
+  businessCenterIds: string[];
+  adsAccountIds: string[];
+  statuses: AdsAccountStatus[];
+  start: string; // ISO date, "" = no lower bound
+  end: string; // ISO date, "" = no upper bound
+}

@@ -58,7 +58,17 @@ export async function DELETE(
 ) {
   try {
     await requireWhitelistedUser(req);
-    await adminDb.collection("adsAccounts").doc(params.id).delete();
+
+    const logsSnap = await adminDb
+      .collection("adsDailyLogs")
+      .where("adsAccountId", "==", params.id)
+      .get();
+
+    const batch = adminDb.batch();
+    logsSnap.docs.forEach((d) => batch.delete(d.ref));
+    batch.delete(adminDb.collection("adsAccounts").doc(params.id));
+    await batch.commit();
+
     return NextResponse.json({ success: true });
   } catch (err) {
     if (err instanceof AuthError) {

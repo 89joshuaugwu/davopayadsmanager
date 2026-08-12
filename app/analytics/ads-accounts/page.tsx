@@ -200,19 +200,25 @@ function AdsAccountsAnalyticsInner() {
       />
       <div>
         <p className="text-xs font-semibold text-davo-navy uppercase tracking-wide mb-2">Date range</p>
-        <div className="flex items-center gap-2 mb-2">
-          <input
-            type="date"
-            value={start}
-            onChange={(e) => setStart(e.target.value)}
-            className="flex-1 h-9 px-2 rounded-lg border border-davo-border text-xs outline-none focus:border-davo-blue"
-          />
-          <input
-            type="date"
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
-            className="flex-1 h-9 px-2 rounded-lg border border-davo-border text-xs outline-none focus:border-davo-blue"
-          />
+        <div className="space-y-2 mb-2">
+          <div>
+            <label className="text-[10px] text-davo-muted block mb-1">From</label>
+            <input
+              type="date"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+              className="w-full min-w-0 h-9 px-2 rounded-lg border border-davo-border text-xs outline-none focus:border-davo-blue"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] text-davo-muted block mb-1">To</label>
+            <input
+              type="date"
+              value={end}
+              onChange={(e) => setEnd(e.target.value)}
+              className="w-full min-w-0 h-9 px-2 rounded-lg border border-davo-border text-xs outline-none focus:border-davo-blue"
+            />
+          </div>
         </div>
       </div>
       {activeFilterCount > 0 && (
@@ -262,7 +268,7 @@ function AdsAccountsAnalyticsInner() {
 
         <div className="grid lg:grid-cols-[260px_1fr] gap-6">
           {/* Desktop filter panel */}
-          <aside className="hidden lg:block bg-white border border-davo-border rounded-xl2 p-4 h-fit sticky top-24 no-print">
+          <aside className="hidden lg:block min-w-0 bg-white border border-davo-border rounded-xl2 p-4 h-fit sticky top-24 no-print">
             {filterContent}
           </aside>
 

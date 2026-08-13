@@ -30,6 +30,7 @@ export default function AddAdsAccountModal({ open, onClose, onSaved, businessCen
   const [status, setStatus] = useState<AdsAccountStatus>("active");
   const [fundsLost, setFundsLost] = useState("0");
   const [dateUpdated, setDateUpdated] = useState(todayISO());
+  const [dateCreated, setDateCreated] = useState(todayISO());
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function AddAdsAccountModal({ open, onClose, onSaved, businessCen
       setStatus(editing.status);
       setFundsLost(String(editing.fundsLost));
       setDateUpdated(editing.dateUpdated || todayISO());
+      setDateCreated(editing.dateCreated || todayISO());
     } else {
       setName("");
       setDestinationUrl("");
@@ -51,6 +53,7 @@ export default function AddAdsAccountModal({ open, onClose, onSaved, businessCen
       setStatus("active");
       setFundsLost("0");
       setDateUpdated(todayISO());
+      setDateCreated(todayISO());
     }
   }, [editing, open]);
 
@@ -81,6 +84,7 @@ export default function AddAdsAccountModal({ open, onClose, onSaved, businessCen
         status,
         fundsLost: Number(fundsLost),
         dateUpdated,
+        dateCreated,
       };
 
       const res = await fetch(
@@ -133,6 +137,17 @@ export default function AddAdsAccountModal({ open, onClose, onSaved, businessCen
             placeholder="https://landing-page.com"
             value={destinationUrl}
             onChange={(e) => setDestinationUrl(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className={labelClass}>Date created (when this account was opened)</label>
+          <input
+            type="date"
+            className={inputClass}
+            value={dateCreated}
+            onChange={(e) => setDateCreated(e.target.value)}
+            max={todayISO()}
           />
         </div>
 

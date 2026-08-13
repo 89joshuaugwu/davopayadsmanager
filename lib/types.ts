@@ -25,7 +25,8 @@ export interface BusinessCenter {
   name: string;
   websiteUrl?: string;
   amountFunded: number;
-  dateFunded: string; // ISO date
+  dateFunded: string; // ISO date — most recent funding top-up
+  dateCreated: string; // ISO date — when this business center was actually opened
   status: BusinessCenterStatus;
   createdAt: number;
 }
@@ -41,7 +42,8 @@ export interface AdsAccount {
   status: AdsAccountStatus;
   invalidationReason?: string;
   fundsLost: number;
-  dateUpdated: string; // ISO date
+  dateUpdated: string; // ISO date — most recent spend/CPA log
+  dateCreated: string; // ISO date — when this ads account was actually opened
   createdAt: number;
 }
 

@@ -25,6 +25,7 @@ export default function AddBusinessCenterModal({ open, onClose, onSaved, gmailAc
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [amountFunded, setAmountFunded] = useState("0");
   const [dateFunded, setDateFunded] = useState(todayISO());
+  const [dateCreated, setDateCreated] = useState(todayISO());
   const [status, setStatus] = useState<"active" | "disabled">("active");
   const [saving, setSaving] = useState(false);
 
@@ -34,12 +35,14 @@ export default function AddBusinessCenterModal({ open, onClose, onSaved, gmailAc
       setWebsiteUrl(editing.websiteUrl || "");
       setAmountFunded(String(editing.amountFunded));
       setDateFunded(editing.dateFunded || todayISO());
+      setDateCreated(editing.dateCreated || todayISO());
       setStatus(editing.status);
     } else {
       setName("");
       setWebsiteUrl("");
       setAmountFunded("0");
       setDateFunded(todayISO());
+      setDateCreated(todayISO());
       setStatus("active");
     }
   }, [editing, open]);
@@ -64,6 +67,7 @@ export default function AddBusinessCenterModal({ open, onClose, onSaved, gmailAc
         websiteUrl,
         amountFunded: Number(amountFunded),
         dateFunded,
+        dateCreated,
         status,
       };
 
@@ -117,6 +121,17 @@ export default function AddBusinessCenterModal({ open, onClose, onSaved, gmailAc
             placeholder="https://example.com"
             value={websiteUrl}
             onChange={(e) => setWebsiteUrl(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className={labelClass}>Date created (when this account was opened)</label>
+          <input
+            type="date"
+            className={inputClass}
+            value={dateCreated}
+            onChange={(e) => setDateCreated(e.target.value)}
+            max={todayISO()}
           />
         </div>
 

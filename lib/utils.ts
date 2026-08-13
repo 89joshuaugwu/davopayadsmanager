@@ -24,6 +24,35 @@ export function formatDate(iso: string): string {
   });
 }
 
+/**
+ * Human-readable "how long has this been active" duration from a creation
+ * date to today — e.g. "3 days", "6 months", "1 year 2 months".
+ */
+export function formatActiveDuration(dateCreated: string): string {
+  if (!dateCreated) return "—";
+  const start = new Date(dateCreated);
+  if (isNaN(start.getTime())) return "—";
+
+  const now = new Date();
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const totalDays = Math.max(0, Math.floor((now.getTime() - start.getTime()) / msPerDay));
+
+  if (totalDays < 1) return "Today";
+  if (totalDays < 30) return `${totalDays} day${totalDays !== 1 ? "s" : ""}`;
+
+  let months =
+    (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+  if (now.getDate() < start.getDate()) months -= 1;
+  months = Math.max(0, months);
+
+  if (months < 12) return `${months} month${months !== 1 ? "s" : ""}`;
+
+  const years = Math.floor(months / 12);
+  const remMonths = months % 12;
+  if (remMonths === 0) return `${years} year${years !== 1 ? "s" : ""}`;
+  return `${years} year${years !== 1 ? "s" : ""} ${remMonths} month${remMonths !== 1 ? "s" : ""}`;
+}
+
 export function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }

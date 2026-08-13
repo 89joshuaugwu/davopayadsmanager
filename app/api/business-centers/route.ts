@@ -1,72 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
+import { FieldValue } from "firebase-admin/firestore";
 import { requireWhitelistedUser, AuthError } from "@/lib/auth-server";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { BusinessCenter, MAX_BUSINESS_CENTERS_PER_GMAIL } from "@/lib/types";
+import { BusinessCenterFunding } from "@/lib/types";
 
-export async function GET(req: NextRequest) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string; fundingId: string } }
+) {
   try {
     await requireWhitelistedUser(req);
 
-    const snap = await adminDb
-      .collection("businessCenters")
-      .orderBy("createdAt", "desc")
-      .get();
+    const entryRef = adminDb.collection("businessCenterFunding").doc(params.fundingId);
+    const entryDoc = await entryRef.get();
+    if (!entryDoc.exists) {
+      return NextResponse.json({ error: "Funding entry not found." }, { status: 404 });
+    }
+    const entryData = entryDoc.data() as BusinessCenterFunding;
 
-    const centers = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<BusinessCenter, "id">) }));
-    return NextResponse.json({ centers });
+    await adminDb.collection("businessCenters").doc(params.id).update({
+      amountFunded: FieldValue.increment(-entryData.amount),
+    });
+    await entryRef.delete();
+
+    return NextResponse.json({ success: true });
   } catch (err) {
     if (err instanceof AuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
-    console.error("GET /api/business-centers failed:", err);
-    return NextResponse.json({ error: "Failed to load business centers." }, { status: 500 });
-  }
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    await requireWhitelistedUser(req);
-    const body = await req.json();
-    const { gmailAccountId, name, websiteUrl, amountFunded, dateFunded, status } = body;
-
-    if (!gmailAccountId || !name) {
-      return NextResponse.json(
-        { error: "gmailAccountId and name are required." },
-        { status: 400 }
-      );
-    }
-
-    const existingSnap = await adminDb
-      .collection("businessCenters")
-      .where("gmailAccountId", "==", gmailAccountId)
-      .get();
-
-    if (existingSnap.size >= MAX_BUSINESS_CENTERS_PER_GMAIL) {
-      return NextResponse.json(
-        {
-          error: `This Gmail account already has the maximum of ${MAX_BUSINESS_CENTERS_PER_GMAIL} business centers.`,
-        },
-        { status: 409 }
-      );
-    }
-
-    const doc: Omit<BusinessCenter, "id"> = {
-      gmailAccountId,
-      name: String(name).trim(),
-      websiteUrl: websiteUrl || "",
-      amountFunded: Number(amountFunded) || 0,
-      dateFunded: dateFunded || new Date().toISOString().slice(0, 10),
-      status: status === "disabled" ? "disabled" : "active",
-      createdAt: Date.now(),
-    };
-
-    const ref = await adminDb.collection("businessCenters").add(doc);
-    return NextResponse.json({ center: { id: ref.id, ...doc } }, { status: 201 });
-  } catch (err) {
-    if (err instanceof AuthError) {
-      return NextResponse.json({ error: err.message }, { status: err.status });
-    }
-    console.error("POST /api/business-centers failed:", err);
-    return NextResponse.json({ error: "Failed to create business center." }, { status: 500 });
+    console.error("DELETE /api/business-centers/[id]/funding/[fundingId] failed:", err);
+    return NextResponse.json({ error: "Failed to delete funding entry." }, { status: 500 });
   }
 }

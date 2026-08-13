@@ -163,6 +163,15 @@ have to re-select filters you already know you want.
 - Deleting a card never deletes funding history: past entries keep their amount, date,
   and note, and just show "Card removed" where the card used to be referenced.
 
+## Account age tracking
+
+Every business center and ads account now has an explicit, editable `dateCreated`
+field — separate from the system `createdAt` timestamp (which just records when the
+row was added to DavoPay, not when the account was actually opened on TikTok). Set it
+when you add or edit an account and the dashboard shows an "Active X days / months /
+years" line under both, computed from that date. Records created before this update
+won't show the line until you edit them and set a `dateCreated`.
+
 ## Automated calculations
 
 - **Total Funded** = sum of all Business Center `amountFunded`

@@ -24,7 +24,7 @@ import {
   MAX_BUSINESS_CENTERS_PER_GMAIL,
   MAX_ADS_ACCOUNTS_PER_BUSINESS_CENTER,
 } from "@/lib/types";
-import { formatCurrency, formatDate, isHighCpa, statusBadgeClasses } from "@/lib/utils";
+import { formatCurrency, formatDate, formatActiveDuration, isHighCpa, statusBadgeClasses } from "@/lib/utils";
 
 interface Props {
   account: GmailAccountPublic;
@@ -178,6 +178,11 @@ export default function GmailAccountCard({
                           <p className="text-xs text-davo-muted mt-0.5">
                             Funded {formatCurrency(bc.amountFunded)} on {formatDate(bc.dateFunded)}
                           </p>
+                          {bc.dateCreated && (
+                            <p className="text-[11px] text-davo-blue font-medium mt-0.5">
+                              Active {formatActiveDuration(bc.dateCreated)} · opened {formatDate(bc.dateCreated)}
+                            </p>
+                          )}
                           {bc.websiteUrl && (
                             <a
                               href={bc.websiteUrl}
@@ -255,6 +260,11 @@ export default function GmailAccountCard({
                                   </span>
                                   {ad.fundsLost > 0 && ` · Lost ${formatCurrency(ad.fundsLost)}`}
                                 </p>
+                                {ad.dateCreated && (
+                                  <p className="text-[11px] text-davo-blue font-medium mt-0.5">
+                                    Active {formatActiveDuration(ad.dateCreated)}
+                                  </p>
+                                )}
                                 {flagged && (
                                   <p className="text-[11px] font-semibold text-davo-danger mt-0.5">
                                     HIGH CPA — ACTION REQUIRED: PAUSE

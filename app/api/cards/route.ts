@@ -1,71 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FieldValue } from "firebase-admin/firestore";
 import { requireWhitelistedUser, AuthError } from "@/lib/auth-server";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { PaymentCard } from "@/lib/types";
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest) {
   try {
     await requireWhitelistedUser(req);
-    const body = await req.json();
 
-    const update: Record<string, unknown> = {};
-    if (body.name !== undefined) update.name = String(body.name).trim();
-    if (body.lastFour !== undefined) {
-      if (!/^\d{4}$/.test(String(body.lastFour))) {
-        return NextResponse.json({ error: "Last 4 digits must be exactly 4 numbers." }, { status: 400 });
-      }
-      update.lastFour = String(body.lastFour);
-    }
-    if (body.businessCenterId !== undefined) update.businessCenterId = body.businessCenterId;
-    if (body.status !== undefined) update.status = body.status;
-    if (body.notes !== undefined) update.notes = body.notes;
+    const snap = await adminDb.collection("cards").orderBy("createdAt", "desc").get();
+    const cards = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PaymentCard, "id">) }));
 
-    const ref = adminDb.collection("cards").doc(params.id);
-    const existing = await ref.get();
-    if (!existing.exists) {
-      return NextResponse.json({ error: "Card not found." }, { status: 404 });
-    }
-
-    await ref.update(update);
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ cards });
   } catch (err) {
     if (err instanceof AuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
-    console.error("PUT /api/cards/[id] failed:", err);
-    return NextResponse.json({ error: "Failed to update card." }, { status: 500 });
+    console.error("GET /api/cards failed:", err);
+    return NextResponse.json({ error: "Failed to load cards." }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest) {
   try {
     await requireWhitelistedUser(req);
+    const body = await req.json();
+    const { name, lastFour, businessCenterId, status, notes } = body;
 
-    // Deleting a card shouldn't delete the funding history it paid for —
-    // just detach the reference so past entries still show their amount/date,
-    // with the card shown as removed rather than pointing at a ghost ID.
-    const fundingSnap = await adminDb
-      .collection("businessCenterFunding")
-      .where("cardId", "==", params.id)
-      .get();
+    if (!name || !lastFour) {
+      return NextResponse.json({ error: "Card name and last 4 digits are required." }, { status: 400 });
+    }
+    if (!/^\d{4}$/.test(String(lastFour))) {
+      return NextResponse.json({ error: "Last 4 digits must be exactly 4 numbers." }, { status: 400 });
+    }
 
-    const batch = adminDb.batch();
-    fundingSnap.docs.forEach((d) => batch.update(d.ref, { cardId: FieldValue.delete() }));
-    batch.delete(adminDb.collection("cards").doc(params.id));
-    await batch.commit();
+    const doc: Omit<PaymentCard, "id"> = {
+      name: String(name).trim(),
+      lastFour: String(lastFour),
+      businessCenterId: businessCenterId || "",
+      status: status === "inactive" ? "inactive" : "active",
+      notes: notes || "",
+      createdAt: Date.now(),
+    };
 
-    return NextResponse.json({ success: true });
+    const ref = await adminDb.collection("cards").add(doc);
+    return NextResponse.json({ card: { id: ref.id, ...doc } }, { status: 201 });
   } catch (err) {
     if (err instanceof AuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
-    console.error("DELETE /api/cards/[id] failed:", err);
-    return NextResponse.json({ error: "Failed to delete card." }, { status: 500 });
+    console.error("POST /api/cards failed:", err);
+    return NextResponse.json({ error: "Failed to create card." }, { status: 500 });
   }
 }

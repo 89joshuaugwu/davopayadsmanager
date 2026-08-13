@@ -3,6 +3,8 @@ import { requireWhitelistedUser, AuthError } from "@/lib/auth-server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { BusinessCenterFunding } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     await requireWhitelistedUser(req);

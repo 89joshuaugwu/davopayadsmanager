@@ -56,10 +56,21 @@ export interface AdsDailyLog {
   createdAt: number;
 }
 
+export interface PaymentCard {
+  id: string;
+  name: string;
+  lastFour: string; // last 4 digits only — never store full card numbers
+  businessCenterId?: string; // if set, this card is dedicated to one business center
+  status: "active" | "inactive";
+  notes?: string;
+  createdAt: number;
+}
+
 export interface BusinessCenterFunding {
   id: string;
   businessCenterId: string;
   gmailAccountId: string; // denormalized, for fast filtering
+  cardId?: string; // which card funded this top-up, if any
   amount: number;
   date: string; // ISO date
   note?: string;

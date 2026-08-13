@@ -123,6 +123,7 @@ git push -u origin main
 | `/dashboard` | Financial summary cards, search, and the Gmail → Business Center → Ads Account tree with full add/edit/delete, daily spend logging, and funding entries |
 | `/analytics/business-centers` | Funding-over-time chart, per-BC totals bar chart, filterable funding history table, print/export |
 | `/analytics/ads-accounts` | Multi-select filters (Gmail / Business Center / Ads Account / status, all checkbox-based) + date range, daily spend & CPA line chart, top-accounts bar chart, status breakdown pie chart, print/export |
+| `/cards` | Card management — name, last 4 digits, optional link to one business center (or left flexible), and a running total of how much has been funded through each card |
 | `/reports` | Date-filtered report table with Print/Export-to-PDF and a "save copy" to Cloudinary |
 
 Navigation is a fixed left sidebar on desktop (lg breakpoint and up) and a slide-over
@@ -147,6 +148,20 @@ have to re-select filters you already know you want.
 - Both are additive on top of the existing schema — older data created before this
   update still works exactly as before; the daily logs and funding entries are what
   power the analytics charts and time-series views specifically.
+
+## Cards & expense tracking
+
+- **Cards** (`cards` collection): name, last 4 digits only (never store full card
+  numbers), an optional link to one business center, and active/inactive status.
+- A card can be **dedicated** to one business center (always shows first in the "Card
+  used" picker when funding that account) or **not linked**, meaning it's used flexibly
+  to fund whichever account needs it.
+- When recording a business center funding entry, you can optionally pick which card
+  paid for it. The Cards page then shows a running total per card — how much has gone
+  through it and how many top-ups — so you have expense visibility per card even for
+  cards that fund multiple accounts.
+- Deleting a card never deletes funding history: past entries keep their amount, date,
+  and note, and just show "Card removed" where the card used to be referenced.
 
 ## Automated calculations
 

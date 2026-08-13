@@ -19,7 +19,7 @@ import AppShell from "@/components/AppShell";
 import Modal from "@/components/Modal";
 import MultiSelectCheckbox from "@/components/MultiSelectCheckbox";
 import { useAuth } from "@/lib/AuthContext";
-import { GmailAccountPublic, BusinessCenter, BusinessCenterFunding } from "@/lib/types";
+import { GmailAccountPublic, BusinessCenter, BusinessCenterFunding, PaymentCard } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { aggregateFundingByDate, CHART_LINE_COLOR } from "@/lib/chartUtils";
 
@@ -35,6 +35,7 @@ function BusinessCenterAnalyticsInner() {
   const [gmailAccounts, setGmailAccounts] = useState<GmailAccountPublic[]>([]);
   const [businessCenters, setBusinessCenters] = useState<BusinessCenter[]>([]);
   const [fundingEntries, setFundingEntries] = useState<BusinessCenterFunding[]>([]);
+  const [cards, setCards] = useState<PaymentCard[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -51,14 +52,16 @@ function BusinessCenterAnalyticsInner() {
     try {
       const token = await getToken();
       const headers = { Authorization: `Bearer ${token}` };
-      const [gmailRes, bcRes, fundingRes] = await Promise.all([
+      const [gmailRes, bcRes, fundingRes, cardsRes] = await Promise.all([
         fetch("/api/gmail-accounts", { headers }),
         fetch("/api/business-centers", { headers }),
         fetch("/api/business-center-funding", { headers }),
+        fetch("/api/cards", { headers }),
       ]);
       setGmailAccounts((await gmailRes.json()).accounts || []);
       setBusinessCenters((await bcRes.json()).centers || []);
       setFundingEntries((await fundingRes.json()).entries || []);
+      setCards((await cardsRes.json()).cards || []);
     } catch {
       toast.error("Failed to load analytics data.");
     } finally {
@@ -287,29 +290,36 @@ function BusinessCenterAnalyticsInner() {
                     <h3 className="text-sm font-semibold text-davo-navy">Funding entries</h3>
                   </div>
                   <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-                    <table className="w-full text-xs sm:text-sm min-w-[420px]">
+                    <table className="w-full text-xs sm:text-sm min-w-[500px]">
                       <thead>
                         <tr className="text-left text-davo-muted border-b border-davo-border">
                           <th className="py-2 pr-3 font-medium">Business center</th>
                           <th className="py-2 pr-3 font-medium">Amount</th>
                           <th className="py-2 pr-3 font-medium">Date</th>
+                          <th className="py-2 pr-3 font-medium">Card</th>
                           <th className="py-2 font-medium">Note</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredEntries.map((e) => (
-                          <tr key={e.id} className="border-b border-davo-border/60">
-                            <td className="py-2 pr-3 text-davo-navy font-medium">
-                              {businessCenters.find((bc) => bc.id === e.businessCenterId)?.name || "—"}
-                            </td>
-                            <td className="py-2 pr-3 text-davo-navy">{formatCurrency(e.amount)}</td>
-                            <td className="py-2 pr-3 text-davo-muted">{formatDate(e.date)}</td>
-                            <td className="py-2 text-davo-muted">{e.note || "—"}</td>
-                          </tr>
-                        ))}
+                        {filteredEntries.map((e) => {
+                          const card = e.cardId ? cards.find((c) => c.id === e.cardId) : null;
+                          return (
+                            <tr key={e.id} className="border-b border-davo-border/60">
+                              <td className="py-2 pr-3 text-davo-navy font-medium">
+                                {businessCenters.find((bc) => bc.id === e.businessCenterId)?.name || "—"}
+                              </td>
+                              <td className="py-2 pr-3 text-davo-navy">{formatCurrency(e.amount)}</td>
+                              <td className="py-2 pr-3 text-davo-muted">{formatDate(e.date)}</td>
+                              <td className="py-2 pr-3 text-davo-muted">
+                                {card ? `${card.name} •••• ${card.lastFour}` : e.cardId ? "Card removed" : "—"}
+                              </td>
+                              <td className="py-2 text-davo-muted">{e.note || "—"}</td>
+                            </tr>
+                          );
+                        })}
                         {filteredEntries.length === 0 && (
                           <tr>
-                            <td colSpan={4} className="py-4 text-center text-davo-muted">
+                            <td colSpan={5} className="py-4 text-center text-davo-muted">
                               No funding entries in this range.
                             </td>
                           </tr>

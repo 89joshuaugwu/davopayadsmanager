@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Modal from "./Modal";
 import { useAuth } from "@/lib/AuthContext";
 import { todayISO } from "@/lib/utils";
+import { PaymentCard } from "@/lib/types";
 
 interface Props {
   open: boolean;
@@ -29,6 +30,8 @@ export default function AddFundingModal({
   const [date, setDate] = useState(todayISO());
   const [amount, setAmount] = useState("0");
   const [note, setNote] = useState("");
+  const [cardId, setCardId] = useState("");
+  const [cards, setCards] = useState<PaymentCard[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -36,8 +39,29 @@ export default function AddFundingModal({
       setDate(todayISO());
       setAmount("0");
       setNote("");
+      setCardId("");
+      loadCards();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  async function loadCards() {
+    try {
+      const token = await getToken();
+      const res = await fetch("/api/cards", { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      setCards(data.cards || []);
+    } catch {
+      // Non-fatal — funding can still be recorded without a card selected.
+    }
+  }
+
+  // Cards dedicated to this business center float to the top of the list.
+  const sortedCards = [...cards].sort((a, b) => {
+    const aMatch = a.businessCenterId === businessCenterId ? 0 : 1;
+    const bMatch = b.businessCenterId === businessCenterId ? 0 : 1;
+    return aMatch - bMatch;
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,7 +81,7 @@ export default function AddFundingModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ date, amount: Number(amount), note }),
+        body: JSON.stringify({ date, amount: Number(amount), note, cardId: cardId || undefined }),
       });
 
       if (!res.ok) {
@@ -100,6 +124,22 @@ export default function AddFundingModal({
             onChange={(e) => setAmount(e.target.value)}
             required
           />
+        </div>
+
+        <div>
+          <label className={labelClass}>Card used (optional)</label>
+          <select className={inputClass} value={cardId} onChange={(e) => setCardId(e.target.value)}>
+            <option value="">No card selected</option>
+            {sortedCards.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} •••• {c.lastFour}
+                {c.businessCenterId === businessCenterId ? " (linked to this account)" : ""}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-davo-muted mt-1">
+            Track this top-up against a card's total expenses. Manage cards from the Cards page.
+          </p>
         </div>
 
         <div>

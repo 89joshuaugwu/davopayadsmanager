@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, FileBarChart, LogOut, Building2, Megaphone } from "lucide-react";
+import { LayoutGrid, FileBarChart, LogOut, Building2, Megaphone, CreditCard } from "lucide-react";
 import toast from "react-hot-toast";
 import Logo from "./Logo";
 import { useAuth } from "@/lib/AuthContext";
@@ -11,6 +11,7 @@ export const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
   { href: "/analytics/business-centers", label: "Business Centers", icon: Building2 },
   { href: "/analytics/ads-accounts", label: "Ads Accounts", icon: Megaphone },
+  { href: "/cards", label: "Cards", icon: CreditCard },
   { href: "/reports", label: "Reports", icon: FileBarChart },
 ];
 

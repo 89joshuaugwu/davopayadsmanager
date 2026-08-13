@@ -37,6 +37,10 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /cards/{docId} {
+      allow read, write: if false;
+    }
+
     // Deny everything else by default
     match /{document=**} {
       allow read, write: if false;

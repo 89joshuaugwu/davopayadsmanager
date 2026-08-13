@@ -35,7 +35,7 @@ export async function POST(
   try {
     await requireWhitelistedUser(req);
     const body = await req.json();
-    const { date, amount, note } = body;
+    const { date, amount, note, cardId } = body;
 
     if (!date || amount === undefined) {
       return NextResponse.json({ error: "date and amount are required." }, { status: 400 });
@@ -58,6 +58,7 @@ export async function POST(
       note: note || "",
       createdAt: Date.now(),
     };
+    if (cardId) doc.cardId = cardId;
     const ref = await adminDb.collection("businessCenterFunding").add(doc);
 
     const isLatestDate = !bcData.dateFunded || date >= bcData.dateFunded;

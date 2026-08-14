@@ -3,10 +3,7 @@ const { parse } = require('url')
 const next = require('next')
 
 const dev = process.env.NODE_ENV !== 'production'
-const hostname = 'localhost'
-const port = process.env.PORT || 3000
-
-const app = next({ dev, hostname, port })
+const app = next({ dev })
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
@@ -17,10 +14,10 @@ app.prepare().then(() => {
     } catch (err) {
       console.error('Error occurred handling', req.url, err)
       res.statusCode = 500
-      res.end('internal server error')
+      res.end('Internal Server Error')
     }
-  }).listen(port, (err) => {
+  }).listen(process.env.PORT || 3000, (err) => {
     if (err) throw err
-    console.log('> Ready on port ' + port)
+    console.log('> Ready on port ' + (process.env.PORT || 3000))
   })
 })
